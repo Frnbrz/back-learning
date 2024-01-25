@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 import { jwtConstants } from '../constants/jwt.constant'
+import { Role } from '../enums/rol.enum'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,14 +23,14 @@ export class AuthGuard implements CanActivate {
 
     if (!token) throw new UnauthorizedException('token not found')
 
+
     try {
       const payload = await this.jwtService.verifyAsync(token, { secret: jwtConstants.secret })
-      request['user'] = payload
+      request[Role.USER] = payload
     }
     catch (error) {
       throw new UnauthorizedException('invalid token')
     }
-     
     return true;
   }
 

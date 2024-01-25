@@ -1,8 +1,11 @@
 import { Body, Controller, Get, Post, Req, Request, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
+import { Roles } from './decorators/roles.decorators'
 import { LoginDto } from './dto/login.dto'
 import { RegisterDto } from './dto/register.dto'
+import { Role } from './enums/rol.enum'
 import { AuthGuard } from './guard/auth.guard'
+import { RolesGuard } from './guard/roles.guard'
 
 
 interface RequestWithUser extends Request {
@@ -37,7 +40,8 @@ export class AuthController {
     return await this.authService.register(registerDto)
   }
   @Get('profile')
-  @UseGuards(AuthGuard)
+  @Roles(Role.USER)
+  @UseGuards(AuthGuard, RolesGuard)
   async profile(@Req() req :RequestWithUser) {
     return await this.authService.profile(req.user)
   }
