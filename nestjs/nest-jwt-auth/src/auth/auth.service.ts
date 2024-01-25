@@ -36,6 +36,10 @@ export class AuthService {
     }
   }
 
+  async login({ username, password }: AuthDto): Promise<{ access_token: string }> {
+    return { access_token: await this.validateUser({ username, password }) }
+  }
+
   async createUser({ username, password }: AuthDto): Promise<string> {
     const user = fakeUser.find((user) => user.username === username);
     if (user) throw new HttpException('User already exists', 400)

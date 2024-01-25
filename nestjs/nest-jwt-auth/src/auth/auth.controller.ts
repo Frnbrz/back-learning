@@ -18,7 +18,6 @@ export class AuthController {
   }
 
   @Post('signup')
-  @UseGuards(LocalGuard)
   async signup(@Req() req: Request){
     return req.user
   }
