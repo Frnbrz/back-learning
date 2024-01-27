@@ -11,7 +11,7 @@ export class BreedsService {
   constructor(
     @InjectRepository(Breed)
     private readonly breedRepository: Repository<Breed>
-  ) {}
+  ) { }
 
   async create(createBreedDto: CreateBreedDto) {
     return await this.breedRepository.save(createBreedDto)
@@ -22,14 +22,14 @@ export class BreedsService {
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} breed`;
+    return `This action returns a #${id} breed`
   }
 
   async update(id: number, updateBreedDto: UpdateBreedDto) {
-    return `This action updates a #${id} breed`;
+    return `This action updates a #${id} breed`
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} breed`;
+    return `This action removes a #${id} breed`
   }
 }

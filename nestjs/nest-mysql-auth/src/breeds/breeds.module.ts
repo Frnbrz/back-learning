@@ -10,4 +10,4 @@ import { Breed } from './entities/breed.entity'
   providers: [BreedsService],
   exports: [TypeOrmModule]
 })
-export class BreedsModule {}
+export class BreedsModule { }

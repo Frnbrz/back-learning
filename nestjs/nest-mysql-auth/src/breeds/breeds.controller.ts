@@ -1,9 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { BreedsService } from './breeds.service';
-import { CreateBreedDto } from './dto/create-breed.dto';
-import { UpdateBreedDto } from './dto/update-breed.dto';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Roles } from 'src/auth/decorators/roles.decorators'
+import { AuthGuard } from 'src/auth/guard/auth.guard'
+import { RolesGuard } from 'src/auth/guard/roles.guard'
+import { Role } from 'src/common/enums/rol.enum'
+import { BreedsService } from './breeds.service'
+import { CreateBreedDto } from './dto/create-breed.dto'
+import { UpdateBreedDto } from './dto/update-breed.dto'
 
 @Controller('breeds')
+@Roles(Role.ADMIN)
+@UseGuards(AuthGuard, RolesGuard)
 export class BreedsController {
   constructor(private readonly breedsService: BreedsService) {}
 
