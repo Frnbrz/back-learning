@@ -11,30 +11,30 @@ export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async login(
-    { email, password}: LoginDto
+    { email, password }: LoginDto
   ) {
-    const user = await this.userService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('email is wrong');
-    
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) throw new UnauthorizedException('password is wrong');
-    
-    const payload = { email: user.email, role: user.role };
-    const token = await this.jwtService.signAsync(payload);
+    const user = await this.userService.findbyEmailWithPassword(email)
+    if (!user) throw new UnauthorizedException('email is wrong')
+
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if (!isPasswordValid) throw new UnauthorizedException('password is wrong')
+
+    const payload = { email: user.email, role: user.role }
+    const token = await this.jwtService.signAsync(payload)
 
     return {
       token,
       email,
-    };
+    }
   }
 
-  async register({name, email, password}: RegisterDto) {
+  async register({ name, email, password }: RegisterDto) {
 
-    
-    const user = await this.userService.findByEmail(email)
+
+    const user = await this.userService.findbyEmailWithPassword(email)
 
     if (user) throw new BadRequestException('User already exists')
 
@@ -53,6 +53,6 @@ export class AuthService {
   }
 
   async profile({ email, role }: { email: string, role: string }) {
-    return await this.userService.findByEmail(email);
+    return await this.userService.findByEmail(email)
   }
 }
