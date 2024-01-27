@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { UserActiveInterface } from 'src/common/interfaces/user-active.interface'
 import { Repository } from 'typeorm'
@@ -27,24 +27,20 @@ export class BlogService {
     return await this.blogRepository.find()
   }
 
-  // async findAllByUser(user: UserActiveInterface) {
-  //   return await this.blogRepository.find({
-  //     where: {
-  //       userEmail: user.email
-  //     }
-  //   })
-  // }
-
-  findOne(id: number) {
-    return `This action returns a #${id} blog`
+  async findOne(id: number): Promise<Blog> {
+    const blog = await this.blogRepository.findOneBy({ id })
+    if (!blog) throw new BadRequestException('Blog not found')
+    return blog
   }
 
-  update(id: number, updateBlogDto: UpdateBlogDto) {
-    return `This action updates a #${id} blog`
+  async update(id: number, updateBlogDto: UpdateBlogDto) {
+    await this.findOne(id)
+    return await this.blogRepository.update(id, updateBlogDto)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} blog`
+  async remove(id: number) {
+    const blog = await this.findOne(id)
+    return await this.blogRepository.remove(blog)
   }
 }
 

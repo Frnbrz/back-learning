@@ -20,28 +20,23 @@ export class BlogController {
     return this.blogService.create(createBlogDto, user)
   }
 
-  // @Get()
-  // findAllByUser(@ActiveUser() user: UserActiveInterface) {
-  //   return this.blogService.findAllByUser(user)
-  // }
-
   @Get()
   findAll() {
     return this.blogService.findAll()
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.blogService.findOne(+id)
+  findOne(@Param('id') id: number) {
+    return this.blogService.findOne(id)
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
-    return this.blogService.update(+id, updateBlogDto)
+  update(@Param('id') id: number, @Body() updateBlogDto: UpdateBlogDto) {
+    return this.blogService.update(id, updateBlogDto)
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.blogService.remove(+id)
+  remove(@Param('id') id: number) {
+    return this.blogService.remove(id)
   }
 }
