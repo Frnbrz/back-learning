@@ -11,7 +11,7 @@ export class Comment {
   text: string
 
 
-  @ManyToOne(() => Blog)
+  @ManyToOne(() => Blog, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'blogId', referencedColumnName: 'id', })
   blog: Blog
 

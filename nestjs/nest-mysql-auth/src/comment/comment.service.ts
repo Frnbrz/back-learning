@@ -20,9 +20,9 @@ export class CommentService {
 
   async create(createCommentDto: CreateCommentDto, user: UserActiveInterface) {
     const blog = await this.blogRepository.findBy({ id: createCommentDto.blogId })
-    if (!blog) {
-      throw new BadRequestException('Blog not found')
-    }
+
+    if (blog.length === 0) throw new BadRequestException('Blog not found')
+
     return await this.commentRepository.save({
       ...createCommentDto,
       userEmail: user.email
