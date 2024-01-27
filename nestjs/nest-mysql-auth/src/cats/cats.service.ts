@@ -1,7 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Breed } from 'src/breeds/entities/breed.entity'
 import { Repository } from 'typeorm'
+import { Breed } from '../breeds/entities/breed.entity'
+import { Role } from '../common/enums/rol.enum'
+import { UserActiveInterface } from '../common/interfaces/user-active.interface'
 import { CreateCatDto } from './dto/create-cat.dto'
 import { UpdateCatDto } from './dto/update-cat.dto'
 import { Cat } from './entities/cat.entity'
@@ -15,34 +17,71 @@ export class CatsService {
 
     @InjectRepository(Breed)
     private readonly breedRepository: Repository<Breed>
-  ) {}
+  ) { }
 
-  async create(createCatDto: CreateCatDto) {
-    
-    const breed = await this.breedRepository.findOneBy({ name: createCatDto.breed })
+  async create(createCatDto: CreateCatDto, user: UserActiveInterface) {
 
-    if (!breed) throw new BadRequestException('Breed not found')
+    const breed = await this.validateBreed(createCatDto.breed)
 
-    const cat = this.catRepository.create({ ...createCatDto, breed })
-    return await this.catRepository.save(cat)
-   
+    const cat = this.catRepository.create({
+      ...createCatDto,
+      breed,
+      userEmail: user.email
+    })
+
+    await this.catRepository.save(cat)
+
+    return cat
+
   }
 
-  async findAll() {
-    return await this.catRepository.find()
+  async findAll(user: UserActiveInterface) {
+
+    if (user.role === Role.ADMIN) return await this.catRepository.find()
+
+    return await this.catRepository.find({
+      where: {
+        userEmail: user.email
+      }
+    })
   }
 
-  async findOne(id: number) {
-    return await this.catRepository.findOneBy({id})
+  async findOne(id: number, user: UserActiveInterface) {
+    const cat = await this.catRepository.findOneBy({ id })
+
+    if (!cat) throw new BadRequestException('Cat not found')
+
+    this.validateOwnership(cat, user)
+
+    return cat
+
   }
 
-  async update(id: number, updateCatDto: UpdateCatDto) {
-    // return await this.catRepository.update(id, updateCatDto)
-    return null
+  async update(id: number, updateCatDto: UpdateCatDto, user: UserActiveInterface) {
+    await this.findOne(id, user)
+
+    await this.validateBreed(updateCatDto.breed)
+
+    return await this.catRepository.update(id, {
+      ...updateCatDto,
+      breed: updateCatDto.breed ? await this.validateBreed(updateCatDto.breed) : undefined,
+      userEmail: user.email
+    })
   }
 
-  async remove(id: number) {
-    return await this.catRepository.softDelete({ id }) // ID
-    // return await this.catRepository.remove({ id }) // instancia
+  async remove(id: number, user: UserActiveInterface) {
+    await this.findOne(id, user)
+    return await this.catRepository.softDelete({ id })
+  }
+
+  private validateOwnership(cat: Cat, user: UserActiveInterface): void {
+    if (user.role !== Role.ADMIN && cat.userEmail !== user.email) throw new UnauthorizedException()
+  }
+
+  private async validateBreed(breed: string): Promise<Breed> {
+    const breedFound = await this.breedRepository.findOneBy({ name: breed })
+    if (!breedFound) throw new BadRequestException('Breed not found')
+
+    return breedFound
   }
 }

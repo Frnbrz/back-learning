@@ -11,4 +11,4 @@ import { Cat } from './entities/cat.entity'
   controllers: [CatsController],
   providers: [CatsService, BreedsService],
 })
-export class CatsModule {}
+export class CatsModule { }
